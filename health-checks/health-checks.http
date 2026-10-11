@@ -1,0 +1,31 @@
+@host = http://localhost:5102
+
+### 1. Tudo bem: relatório completo -> 200
+GET {{host}}/health
+
+### 2. Liveness -> 200
+GET {{host}}/health/live
+
+### 3. Readiness -> 200
+GET {{host}}/health/ready
+
+### 4. Derrubar o banco
+POST {{host}}/simulate/database/down
+
+### 5. Liveness continua 200 (o processo está vivo)
+GET {{host}}/health/live
+
+### 6. Readiness vira 503 (não dá para receber tráfego)
+GET {{host}}/health/ready
+
+### 7. Relatório completo mostra qual checagem falhou -> 503
+GET {{host}}/health
+
+### 8. Deixar o banco lento (Degraded)
+POST {{host}}/simulate/database/slow
+
+### 9. Relatório com status Degraded, mas ainda 200
+GET {{host}}/health
+
+### 10. Voltar ao normal
+POST {{host}}/simulate/database/online
