@@ -1,0 +1,30 @@
+@host = http://localhost:5101
+
+### 1. Login da ana (papel "agent"). O "# @name" guarda a resposta na variável "loginAna".
+# @name loginAna
+POST {{host}}/login
+Content-Type: application/json
+
+{ "username": "ana", "password": "123" }
+
+### 2. /me com o token da ana -> 200
+GET {{host}}/me
+Authorization: Bearer {{loginAna.response.body.accessToken}}
+
+### 3. /admin com o token da ana -> 403 (autenticada, mas sem o papel "admin")
+GET {{host}}/admin
+Authorization: Bearer {{loginAna.response.body.accessToken}}
+
+### 4. Login do bruno (papel "admin")
+# @name loginBruno
+POST {{host}}/login
+Content-Type: application/json
+
+{ "username": "bruno", "password": "123" }
+
+### 5. /admin com o token do bruno -> 200
+GET {{host}}/admin
+Authorization: Bearer {{loginBruno.response.body.accessToken}}
+
+### 6. /me sem token -> 401
+GET {{host}}/me
